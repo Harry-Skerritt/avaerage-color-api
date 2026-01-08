@@ -5,7 +5,7 @@ from io import BytesIO
 import colorsys
 
 
-app = Flash(__name__)
+app = Flask(__name__)
 
 def rgb_to_hex(r, g, b):
 	# Formats as 0xRRGGBB
@@ -20,7 +20,7 @@ def get_shade(r, g, b, delta):
 	return rgb_to_hex(new_r * 255, new_g * 255, new_b * 255)
 
 
-@app.route('api/analyse', methods=['GET'])
+@app.route('/api/analyse', methods=['GET'])
 def analyse():
 	img_url = request.args.get('url')
 	if not img_url:
@@ -28,10 +28,14 @@ def analyse():
 
 	try:
 		# Fetch image
-		resp = requests.get(img_url, timeout=5)
+		headers = {'User-Agent': "Mozilla/5.0"}
+		resp = requests.get(img_url, timeout=5, headers=headers)
+		resp.raise_for_status()
+
+
 		img = Image.open(BytesIO(resp.content)).convert("RGB")
 		
-		img = img.resize((1, 1), resample=Image.Resampling.LANCZON)
+		img = img.resize((1, 1), resample=Image.Resampling.LANCZOS)
 		r, g, b = img.getpixel((0, 0))
 
 		return jsonify({
@@ -46,5 +50,4 @@ def analyse():
 		return jsonify({"error": "Processing failed", "details": str(e)}), 500
 
 
-def handler(request):
-	return app
+app = app
