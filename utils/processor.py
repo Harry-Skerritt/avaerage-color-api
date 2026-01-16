@@ -72,8 +72,8 @@ class ColourProcessor:
         max_score = -1
 
         for color in clusters:
-            r, g, b = color / 255.0
-            h, s, v = colorsys.rgb_to_hsv(r, g, b)
+            r_norm, g_norm, b_norm = color / 255.0
+            h, s, v = colorsys.rgb_to_hsv(r_norm, g_norm, b_norm)
 
             sat_weight = s ** 2
             val_weight = 1.0 - abs(v - 0.5)
@@ -88,9 +88,15 @@ class ColourProcessor:
             best_color = clusters[0]
 
         r, g, b = [int(c) for c in best_color]
+        r1, g1, b1 = [int(c * 0.7) for c in best_color]
 
-        results = {mode: cls.rgb_to_hex(r, g, b)}
-        results.update(cls.get_shades(r, g, b))
+        results = {
+            "spotify": cls.rgb_to_hex(r, g, b),
+            "spotify-darker": cls.rgb_to_hex(r1, g1, b1)
+        }
+
+        results.update(cls.get_shades(r1, g1, b1))
+
         return results
 
 
