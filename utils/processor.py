@@ -82,7 +82,7 @@ class ColourProcessor:
 
         r, g, b = [int(c * 0.7) for c in best_color]
         hash_hex_val = f"#{r:02x}{g:02x}{b:02x}"
-        hex_val = rgb_to_hex(r, g, b)
+        hex_val = cls.rgb_to_hex(r, g, b)
 
         return {
             "spotify_hex": hex_val,
