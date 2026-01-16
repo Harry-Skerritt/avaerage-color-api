@@ -3,6 +3,7 @@ import requests
 from PIL import Image
 from io import BytesIO
 import colorsys
+from utils.processor import ColourProcessor
 
 app = Flask(__name__)
 
