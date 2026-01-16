@@ -65,7 +65,7 @@ class ColourProcessor:
         pixels = np.array(img).reshape(-1, 3)
 
         # Extraction via K-Means
-        kmeans = KMeans(n_clusters=5, n_init=10).fit(pixels)
+        kmeans = KMeans(n_clusters=8, n_init=10).fit(pixels)
         clusters = kmeans.cluster_centers_
 
         best_color = None
@@ -74,17 +74,25 @@ class ColourProcessor:
         for color in clusters:
             r, g, b = color / 255.0
             h, s, v = colorsys.rgb_to_hsv(r, g, b)
-            score = s * v
-            if v > 0.7: score *= 0.4
+
+            sat_weight = s ** 2
+            val_weight = 1.0 - abs(v - 0.5)
+
+            score = sat_weight * val_weight
+
             if score > max_score:
                 max_score = score
                 best_color = color
 
-        r, g, b = [int(c * 0.7) for c in best_color]
-        hash_hex_val = f"#{r:02x}{g:02x}{b:02x}"
-        hex_val = cls.rgb_to_hex(r, g, b)
+        if best_color is None:
+            best_color = clusters[0]
 
-        return {
-            "spotify_hex": hex_val,
-            "css_gradient": f"linear-gradient(180deg, {hash_hex_val} 0%, #121212 100%)"
-        }
+        r, g, b = [int(c) for c in best_color]
+
+        results = {mode: cls.rgb_to_hex(r, g, b)}
+        results.update(cls.get_shades(r, g, b))
+        return results
+
+
+
+
